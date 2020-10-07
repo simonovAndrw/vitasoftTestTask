@@ -1,50 +1,28 @@
 package test.vitasoft.vitasoft_test.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.HashSet;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import java.util.Set;
+import java.util.stream.Collectors;
 
-@Entity
-@Table(name = "roles")
-public class Role implements Serializable {
+public enum Role {
+    USER(Set.of(Permission.USERS_READ, Permission.USERS_WRITE, Permission.USERS_MODIFY_DRAFT, Permission.USER_LIST)),
+    OPERATOR(Set.of(Permission.OPERATOR_READ, Permission.OPERATOR_ACCEPT, Permission.OPERATOR_DECLINE)),
+    ADMIN(Set.of(Permission.ADMIN_LIST_ALL_USERS, Permission.ADMIN_SET_PRIVILEGES));
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private final Set<Permission> permissions;
 
-    private String name;
-
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    private Set<User> users = new HashSet<>();
-
-    public Role() {}
-
-    public Role(String name) {
-        this.name = name;
+    Role(Set<Permission> permissions) {
+        this.permissions = permissions;
     }
 
-    public Long getId() {
-        return id;
+    public Set<Permission> getPermissions() {
+        return permissions;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
+    public Set<SimpleGrantedAuthority> getAuthorities() {
+        return getPermissions().stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
+                .collect(Collectors.toSet());
     }
 }

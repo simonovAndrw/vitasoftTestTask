@@ -16,8 +16,7 @@ public class Report implements Serializable {
     @JoinColumn(name = "userId")
     private User user;
 
-    @OneToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "statusId")
+    @Enumerated(value = EnumType.STRING)
     private Status status;
 
     private Calendar date;

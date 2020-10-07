@@ -1,24 +1,24 @@
 package test.vitasoft.vitasoft_test.security;
 
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import test.vitasoft.vitasoft_test.entity.User;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class SecurityEmployee implements UserDetails {
+public class SecurityUser implements UserDetails {
 
     private String name;
     private String password;
-
     private List<SimpleGrantedAuthority> authorities;
 
-    public SecurityEmployee() {}
+    public SecurityUser() {}
 
-    public SecurityEmployee(String name, String password, List<SimpleGrantedAuthority> authorities) {
+    public SecurityUser(String name, String password, List<SimpleGrantedAuthority> authorities) {
         this.name = name;
         this.password = password;
         this.authorities = authorities;
@@ -75,10 +75,12 @@ public class SecurityEmployee implements UserDetails {
         return true;
     }
 
-//    public static UserDetails fromUser(User user) {
-//        return new org.springframework.security.core.userdetails.User(
-//                user.getName(), user.getPassword(),
-//                true, true, true, true,
-//                user.get)
-//    }
+    public static UserDetails fromUser(User user) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        user.getRoles().forEach(role -> authorities.addAll(role.getAuthorities()));
+        return new org.springframework.security.core.userdetails.User(
+                user.getName(), user.getPassword(),
+                true, true, true, true,
+                authorities);
+    }
 }

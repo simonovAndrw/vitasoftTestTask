@@ -1,37 +1,22 @@
 package test.vitasoft.vitasoft_test.entity;
 
-import javax.persistence.*;
-import java.io.Serializable;
+public enum Status {
+    DRAFT("reports:draft"),
+    SENT("reports:sent"),
+    ACCEPTED("reports:accepted"),
+    DECLINED("reports:declined");
 
-@Entity
-@Table(name = "statuses")
-public class Status implements Serializable {
+    private String status;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
-
-    public Status() {}
-
-    public Status(String name) {
-        this.name = name;
+    Status(String status) {
+        this.status = status;
     }
 
-    public Long getId() {
-        return id;
+    public String getStatus() {
+        return status;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

@@ -1,13 +1,21 @@
 package test.vitasoft.vitasoft_test.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
+@Controller
+@RequestMapping("/auth")
 public class AuthController {
 
-    @PostMapping("/auth")
-    public String authenticate() {
-        return null;
+    @GetMapping("/login")
+    public String getLoginPge() {
+        return "login";
     }
+
+    @GetMapping("/success")
+    public String getSuccessPage() {
+        return "success";
+    }
+
 }

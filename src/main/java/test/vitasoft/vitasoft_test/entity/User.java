@@ -16,25 +16,23 @@ public class User implements Serializable {
     private Long id;
 
     private String name;
+    private String email;
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinTable(name = "employeesRoles",
-            joinColumns = {
-                    @JoinColumn(name = "userId", referencedColumnName = "id", nullable = false, updatable = true)},
-            inverseJoinColumns = {
-                    @JoinColumn(name = "roleId", referencedColumnName = "id",
-                            nullable = false, updatable = true)})
+//    @ElementCollection(targetClass = Role.class)
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
+    @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "employee")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<Report> reports = new LinkedList<>();
 
     public User() {}
 
-    public User(String name, String employeePassword) {
+    public User(String name, String email, String password) {
         this.name = name;
-        this.password = employeePassword;
+        this.email = email;
+        this.password = password;
     }
 
     public Long getId() {
@@ -51,6 +49,14 @@ public class User implements Serializable {
 
     public void setName(String employeeName) {
         this.name = employeeName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
