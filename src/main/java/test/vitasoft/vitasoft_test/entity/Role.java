@@ -25,4 +25,13 @@ public enum Role {
                 .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
                 .collect(Collectors.toSet());
     }
+
+    public static Role getRoleByName(String name) {
+        if (name.equalsIgnoreCase("OPERATOR"))
+            return Role.OPERATOR;
+        else if (name.equalsIgnoreCase("ADMIN"))
+            return Role.ADMIN;
+        else
+            return Role.USER;
+    }
 }

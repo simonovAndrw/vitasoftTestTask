@@ -51,8 +51,9 @@ public class Report implements Serializable {
         return status;
     }
 
-    public void setStatus(Status statusId) {
-        this.status = statusId;
+    // There were status id as parameter        !!!!!!!!!!
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Calendar getDate() {
