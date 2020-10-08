@@ -77,7 +77,7 @@ public class SecurityUser implements UserDetails {
 
     public static UserDetails fromUser(User user) {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        user.getRoles().forEach(role -> authorities.addAll(role.getAuthorities()));
+//        user.getRoles().forEach(role -> authorities.addAll(role.getAuthorities()));
         return new org.springframework.security.core.userdetails.User(
                 user.getName(), user.getPassword(),
                 true, true, true, true,

@@ -2,11 +2,11 @@ package test.vitasoft.vitasoft_test.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Calendar;
+import java.util.Date;
 
 @Entity
 @Table(name = "reports")
-public class Report implements Serializable {
+public class Report implements Serializable, Comparable<Report> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,12 +19,12 @@ public class Report implements Serializable {
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
-    private Calendar date;
+    private Date date;
     private String text;
 
     public Report() {}
 
-    public Report(User user, Status status, Calendar date, String text) {
+    public Report(User user, Status status, Date date, String text) {
         this.user = user;
         this.status = status;
         this.date = date;
@@ -51,16 +51,15 @@ public class Report implements Serializable {
         return status;
     }
 
-    // There were status id as parameter        !!!!!!!!!!
     public void setStatus(Status status) {
         this.status = status;
     }
 
-    public Calendar getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(Calendar date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
@@ -70,5 +69,21 @@ public class Report implements Serializable {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" +
+                "id=" + id +
+//                ", user=" + user +
+//                ", status=" + status +
+                ", date=" + date +
+                ", text='" + text + '\'' +
+                '}';
+    }
+
+    @Override
+    public int compareTo(Report report) {
+        return this.getDate().compareTo(report.getDate());
     }
 }

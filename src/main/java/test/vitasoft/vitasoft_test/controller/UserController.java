@@ -13,6 +13,8 @@ import test.vitasoft.vitasoft_test.repository.UserRepository;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static test.vitasoft.vitasoft_test.util.Utility.isSingleRole;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -25,8 +27,9 @@ public class UserController {
     }
 
     @GetMapping("/getAll")
-    public String getAllUsers(@RequestParam(name = "isAdmin") boolean isAdmin) {
-        if (isAdmin) {
+    public String getAllUsers(@RequestParam(name = "userId") Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
+        if (isSingleRole(user.getRoles(), Role.ADMIN)) {
             return StreamSupport.stream(userRepository.findAll().spliterator(), false)
                     .collect(Collectors.toList()).toString();
         } else {
@@ -35,14 +38,18 @@ public class UserController {
     }
 
     @GetMapping("/grantRole")
-    public void grantRole(@RequestParam(name = "isAdmin") boolean isAdmin,
-                          @RequestParam(name = "userId") Long userId,
+    public String grantRole(@RequestParam(name = "userId") Long userId,
+                          @RequestParam(name = "secondUserId") Long secondUserId,
                           @RequestParam(name = "roleName") String roleName) {
-        if (isAdmin) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
-            user.getRoles().add(Role.getRoleByName(roleName));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
+        if (isSingleRole(user.getRoles(), Role.ADMIN)) {
+            User secondUser = userRepository.findById(secondUserId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
+            secondUser.getRoles().add(Role.getRoleByName(roleName));
 
-            userRepository.save(user);
+            userRepository.save(secondUser);
+            return "Role granted";
         }
+
+        return "You dont have such permission";
     }
 }

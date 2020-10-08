@@ -19,7 +19,6 @@ public class User implements Serializable {
     private String email;
     private String password;
 
-//    @ElementCollection(targetClass = Role.class)
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
@@ -81,5 +80,17 @@ public class User implements Serializable {
 
     public void setReports(List<Report> reports) {
         this.reports = reports;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+//                ", roles=" + roles +
+//                ", reports=" + reports +
+                '}';
     }
 }

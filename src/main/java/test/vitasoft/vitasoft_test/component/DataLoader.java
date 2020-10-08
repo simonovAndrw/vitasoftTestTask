@@ -13,6 +13,7 @@ import test.vitasoft.vitasoft_test.repository.ReportRepository;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 
 @Component
 public class DataLoader implements ApplicationRunner {
@@ -37,13 +38,20 @@ public class DataLoader implements ApplicationRunner {
 
         userRepository.saveAll(Arrays.asList(ivanUser, stepanUser, dimaOperator, filippAdmin));
 
-        Report reportFromIvan = new Report(ivanUser, Status.SENT, Calendar.getInstance(), "Some text from Ivan");
-        Report reportFromStepan = new Report(stepanUser, Status.SENT, Calendar.getInstance(), "Some text from Stepan");
+        Report reportFromIvan1 = new Report(ivanUser, Status.SENT, new Date(), "Some text from Ivan1");
+        Report reportFromIvan2 = new Report(ivanUser, Status.SENT, new Date(), "Some text from Ivan2");
+        Report reportFromIvan3 = new Report(ivanUser, Status.SENT, new Date(), "Some text from Ivan3");
+        Report reportFromIvan4 = new Report(ivanUser, Status.DRAFT, new Date(), "Some text from Ivan4");
+        Report reportFromStepan1 = new Report(stepanUser, Status.SENT, new Date(), "Some text from Stepan1");
+        Report reportFromStepan2 = new Report(stepanUser, Status.SENT, new Date(), "Some text from Stepan2");
+        Report reportFromStepan3 = new Report(stepanUser, Status.SENT, new Date(), "Some text from Stepan3");
+        Report reportFromStepan4 = new Report(stepanUser, Status.DRAFT, new Date(), "Some text from Stepan4");
 
-        reportRepository.saveAll(Arrays.asList(reportFromIvan, reportFromStepan));
+        reportRepository.saveAll(Arrays.asList(reportFromIvan1, reportFromIvan2, reportFromIvan3, reportFromIvan4,
+                reportFromStepan1, reportFromStepan2,reportFromStepan3,reportFromStepan4));
 
         ivanUser.getRoles().add(Role.USER);
-        stepanUser.getRoles().addAll(Arrays.asList(Role.USER, Role.OPERATOR));
+        stepanUser.getRoles().add(Role.USER);
         dimaOperator.getRoles().add(Role.OPERATOR);
         filippAdmin.getRoles().add(Role.ADMIN);
 

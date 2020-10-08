@@ -13,9 +13,11 @@ import test.vitasoft.vitasoft_test.entity.User;
 import test.vitasoft.vitasoft_test.repository.ReportRepository;
 import test.vitasoft.vitasoft_test.repository.UserRepository;
 
-import java.util.Calendar;
-import java.util.Collection;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static test.vitasoft.vitasoft_test.util.Utility.isSingleRole;
 
 @RestController
 @RequestMapping("/api/report")
@@ -32,8 +34,8 @@ public class ReportController {
 
     @GetMapping("/create")
     public String createReport(@RequestParam(name = "userId") Long userId,
-                             @RequestParam(name = "isDraft") boolean isDraft,
-                             @RequestParam(name = "text") String text) {
+                               @RequestParam(name = "isDraft") boolean isDraft,
+                               @RequestParam(name = "text") String text) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
 
         Status status;
@@ -43,7 +45,7 @@ public class ReportController {
             status = Status.SENT;
 
         if (isSingleRole(user.getRoles(), Role.USER)) {
-            Report report = new Report(user, status, Calendar.getInstance(), text);
+            Report report = new Report(user, status, new Date(), text);
             reportRepository.save(report);
         } else {
             return "You have not got such privilege";
@@ -54,18 +56,19 @@ public class ReportController {
 
     @GetMapping("/modify")
     public String modifyReport(@RequestParam(name = "reportId") Long reportId,
-                             @RequestParam(name = "userId") Long userId,
-                             @RequestParam(name = "text") String text) {
+                               @RequestParam(name = "userId") Long userId,
+                               @RequestParam(name = "text") String text) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user\n"));
         if (isSingleRole(user.getRoles(), Role.USER)) {
             Report report = reportRepository.findById(reportId).orElseThrow(() -> new UsernameNotFoundException("No such user\n"));
 
-            if (report.getStatus() == Status.DRAFT) {
-                report.setDate(Calendar.getInstance());
+            // if this report created by this user and report's status is draft
+            if (report.getStatus() == Status.DRAFT && report.getUser().getId().equals(user.getId())) {
+                report.setDate(new Date());
                 report.setText(text);
                 report.setStatus(Status.DRAFT);
             } else
-                return "Report status is not Draft";
+                return "You have not got such permission";
 
         } else
             return "You have not such permissions";
@@ -75,13 +78,16 @@ public class ReportController {
 
     @RequestMapping("/get")
     public String getReport(@RequestParam(name = "userId") Long userId,
-                          @RequestParam(name = "reportId") Long reportId) {
+                            @RequestParam(name = "reportId") Long reportId) {
         // there are 2 ways if gets by User or Operator
         User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
         Report report = reportRepository.findById(reportId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
 
         if (isSingleRole(user.getRoles(), Role.USER)) {
-            return report.toString();
+            if (report.getUser().getId().equals(user.getId()))
+                return report.toString();
+            else
+                return "You have not got such permission";
         } else if (isSingleRole(user.getRoles(), Role.OPERATOR)) {
             String text = report.getText();
             StringBuilder sb = new StringBuilder();
@@ -98,41 +104,50 @@ public class ReportController {
         }
     }
 
-    // TODO sort by date
     @RequestMapping("/getAll")
     public String getAllReports(@RequestParam(name = "userId") Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
+        List<Report> reports;
         if (isSingleRole(user.getRoles(), Role.OPERATOR)) {
-            return  reportRepository.findAllByStatus(Status.SENT).stream().collect(Collectors.toList()).toString();
+            reports = reportRepository.findAllByStatus(Status.SENT).orElseThrow(() -> new UsernameNotFoundException("No sucr reports"));
+            Collections.sort(reports);
+            return reports.toString();
+        } else if (isSingleRole(user.getRoles(), Role.USER)) {
+            reports =  StreamSupport.stream(reportRepository.findAllById(Arrays.asList(userId)).spliterator(), false).
+                    collect(Collectors.toList());
+            Collections.sort(reports);
+            return reports.toString();
         } else
             return "You have not got permission";
     }
 
     @GetMapping("/accept")
-    public void acceptReport(@RequestParam(name = "userId") Long userId,
-                             @RequestParam(name = "reportId") Long reportId) {
+    public String acceptReport(@RequestParam(name = "userId") Long userId,
+                               @RequestParam(name = "reportId") Long reportId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
         if (isSingleRole(user.getRoles(), Role.OPERATOR)) {
             Report report = reportRepository.findById(reportId).orElseThrow(() -> new UsernameNotFoundException("No such report"));
             report.setStatus(Status.ACCEPTED);
 
             reportRepository.save(report);
-        }
+        } else
+            return "You have not got permission";
+
+        return "Report accepted";
     }
 
     @GetMapping("/decline")
-    public void declineReport(@RequestParam(name = "userId") Long userId,
-                             @RequestParam(name = "reportId") Long reportId) {
+    public String declineReport(@RequestParam(name = "userId") Long userId,
+                                @RequestParam(name = "reportId") Long reportId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("No such user"));
         if (isSingleRole(user.getRoles(), Role.OPERATOR)) {
             Report report = reportRepository.findById(reportId).orElseThrow(() -> new UsernameNotFoundException("No such report"));
             report.setStatus(Status.ACCEPTED);
 
             reportRepository.save(report);
-        }
-    }
+        } else
+            return "You have not got permission";
 
-    private boolean isSingleRole(Collection<Role> roles, Role neededRole) {
-        return roles.size() == 1 && roles.contains(neededRole);
+        return "Report accepted";
     }
 }
